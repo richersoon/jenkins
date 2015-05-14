@@ -1,27 +1,53 @@
 package com.padistutorial.LingoProject;
 
-import static org.junit.Assert.*;
+import java.util.ArrayList;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.padistutorial.LingoProject.classes.Datasource;
 import com.padistutorial.LingoProject.classes.LingoGame;
 
+@RunWith(MockitoJUnitRunner.class)
 public class LingoGameTest {
 
 	ApplicationContext ctx;
+
+	private static ArrayList<String> strings;
+	
+	@Mock
+	Datasource datasource;
+	
+	@BeforeClass
+	public static void setUpGeneral() {
+		strings = new ArrayList<String>();
+		strings.add("tutorial");
+		strings.add("padjis");
+	}
 	
 	@Before
 	public void setUp()  {
 		ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
+		
+		Mockito.when(datasource.getWordsFromPackedDataSource()).thenReturn(strings);
 	}
 
 	@Test
 	public void test(){
 		LingoGame lingoGame = (LingoGame) ctx.getBean("myLingoGame");
 		lingoGame.startGame();
+	}
+	
+	@Test
+	public void testMockedMethod() {
+		System.out.println(datasource.getWordsFromPackedDataSource());
 	}
 	
 	//we are going to test the entire system of lingo game
@@ -35,7 +61,7 @@ public class LingoGameTest {
 		
 		//we are going to use mockito in order to provide a fake set of words in which the playable one
 		//will be choosen
-		lingoGame.setWordsFromDataSource(getWordsFromPackedDataSource());
+		lingoGame.setWordsFromDataSource(datasource.getWordsFromPackedDataSource());
 		
 		//selects a word between all the words of the faked Datasource
 		lingoGame.selectAWordFromTheFakedDataSource();
